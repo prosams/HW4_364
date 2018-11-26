@@ -1,6 +1,8 @@
 # An application in Flask where you can log in and create user accounts to save Gif collections
 # SI 364 - F18 - HW4
 
+# I used my own code from the midterm assignment for parts of this assignment
+
 # TODO 364: Check out the included file giphy_api_key.py and follow the instructions in TODOs there before proceeding to view functions.
 
 # TODO 364: All templates you need are provided and should not be edited. However, you will need to inspect the templates that exist in order to make sure you send them the right data!
@@ -51,12 +53,8 @@ login_manager.init_app(app) # set up login manager
 ## Association tables
 # NOTE - 364: You may want to complete the models tasks below BEFORE returning to build the association tables! That will making doing this much easier.
 
-# NOTE: Remember that setting up association tables in this course always has the same structure! Just make sure you refer to the correct tables and columns!
-
 # TODO 364: Set up association Table between search terms and GIFs (you can call it anything you want, we suggest 'tags' or 'search_gifs').
-
 search_gifs = db.Table('search_gifs',db.Column('search_id',db.Integer,db.ForeignKey('SearchTerm.id')),db.Column('gif_id',db.Integer,db.ForeignKey('Gif.id')))
-
 # TODO 364: Set up association Table between GIFs and collections prepared by user (you can call it anything you want. We suggest: user_collection)
 user_collection = db.Table('user_collection',db.Column('gif_id',db.Integer,db.ForeignKey('Gif.id')),db.Column('collection_id',db.Integer,db.ForeignKey('PersonalGifCollection.id')))
 
@@ -76,11 +74,9 @@ class User(UserMixin, db.Model):
 	@property
 	def password(self):
 		raise AttributeError('password is not a readable attribute')
-
 	@password.setter
 	def password(self, password):
 		self.password_hash = generate_password_hash(password)
-
 	def verify_password(self, password):
 		return check_password_hash(self.password_hash, password)
 
@@ -89,8 +85,6 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
 	return User.query.get(int(user_id)) # returns User object or None
-
-# TODO 364: Read through all the models tasks before beginning them so you have an understanding of what the database structure should be like. Consider thinking about it as a whole and drawing it out before you write this code.
 
 # Model to store gifs
 class Gif(db.Model):
@@ -104,7 +98,7 @@ class Gif(db.Model):
 
 # Model to store a personal gif collection
 class PersonalGifCollection(db.Model):
-		__tablename__ = "PersonalGifCollection"
+	__tablename__ = "PersonalGifCollection"
 	# TODO 364: Add code for the PersonalGifCollection model such that it has the following fields:
 	id = db.Column(db.Integer, primary_key=True)        # id (Integer, primary key)
 	title = db.Column(db.String(255))      # name (String, up to 255 characters)
@@ -166,12 +160,17 @@ class CollectionCreateForm(FlaskForm):
 
 def get_gifs_from_giphy(search_string):
 	""" Returns data from Giphy API with up to 5 gifs corresponding to the search input"""
-	baseurl = "https://api.giphy.com/v1/gifs/search"
-	pass # Replace with code
-	# TODO 364: This function should make a request to the Giphy API using the input search_string, and your api_key (imported at the top of this file)
-	# Then the function should process the response in order to return a list of 5 gif dictionaries.
-	# HINT: You'll want to use 3 parameters in the API request -- api_key, q, and limit. You may need to do a bit of nested data investigation and look for API documentation.
-	# HINT 2: test out this function outside your Flask application, in a regular simple Python program, with a bunch of print statements and sample invocations, to make sure it works!
+	url = "https://api.giphy.com/v1/gifs/search"
+	params = {}
+	term = search_string
+	params["api_key"] = api_key
+	params["q"] = term
+	params["limit"]  = "5"
+
+	response = requests.get(url, params) # TODO 364: This function should make a request to the Giphy API using the input search_string, and your api_key (imported at the top of this file)
+	result = response.text
+	data = json.loads(result)['data'] 	# Then the function should process the response in order to return a list of 5 gif dictionaries.
+	return data
 
 # Provided
 def get_gif_by_id(id):
