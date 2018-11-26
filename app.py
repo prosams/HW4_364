@@ -104,7 +104,7 @@ class Gif(db.Model):
 
 # Model to store a personal gif collection
 class PersonalGifCollection(db.Model):
-	__tablename__ = "PersonalGifCollection"
+		__tablename__ = "PersonalGifCollection"
 	# TODO 364: Add code for the PersonalGifCollection model such that it has the following fields:
 	id = db.Column(db.Integer, primary_key=True)        # id (Integer, primary key)
 	title = db.Column(db.String(255))      # name (String, up to 255 characters)
