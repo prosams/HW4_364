@@ -19,10 +19,11 @@ params["q"] = term
 params["limit"]  = limit
 
 response = requests.get(url, params)
-print(response)
-print("response is done ! ! ! ! !! ")
-result = response.json()
-print(result)
+result = response.text
+data = json.loads(result)['data']
+
+print(data)
+
 
 # url = "https://maps.googleapis.com/maps/api/place/textsearch/json?"
 # key = ""
