@@ -212,15 +212,24 @@ def get_or_create_search_term(term):
 
 def get_or_create_collection(name, current_user, gif_list=[]):
 	"""Always returns a PersonalGifCollection instance"""
-	pass # Replace with code
+	collec = PersonalGifCollection.query.filter_by(title = name, userid = current_user.id).first()
+
+	if collec: 			# if there exists a collection with the input name, associated with the current user,
+		return collec 	#then this function should return that PersonalGifCollection instance.
+
+	else:
+		newcollec = PersonalGifCollection(title = name, userid = current_user.id, gifs = gif_list)
+
+		for gif in gif_list:
+			newcollec.gifs.append(gif)
+
+		db.session.add(newcollec)
+		db.session.commit()
+		return newcollec
 
 	# TODO 364: This function should get or create a personal gif collection. Uniqueness of the gif collection should be determined by the name of the collection and the id of the logged in user.
-
-	# In other words, based on the input to this function, if there exists a collection with the input name, associated with the current user, then this function should return that PersonalGifCollection instance.
-
 	# However, if no such collection exists, a new PersonalGifCollection instance should be created, and each Gif in the gif_list input should be appended to it (remember, there exists a many to many relationship between Gifs and PersonalGifCollections).
 	# HINT: You can think of a PersonalGifCollection like a Playlist, and Gifs like Songs.
-
 
 ########################
 #### View functions ####
@@ -308,8 +317,14 @@ def create_collection():
 	gifs = Gif.query.all()
 	choices = [(g.id, g.title) for g in gifs]
 	form.gif_picks.choices = choices
+
+	if form.validate_on_submit():
+		giflist = form.gif_picks.data
+
+
 	# TODO 364: If the form validates on submit, get the list of the gif ids that were selected from the form. Use the get_gif_by_id function to create a list of Gif objects.  Then, use the information available to you at this point in the function (e.g. the list of gif objects, the current_user) to invoke the get_or_create_collection function, and redirect to the page that shows a list of all your collections.
 	# If the form is not validated, this view function should simply render the create_collection.html template and send the form to the template.
+	return render_template('create_collection.html', form = form)
 
 
 @app.route('/collections',methods=["GET","POST"])
