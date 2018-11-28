@@ -318,7 +318,7 @@ def create_collection():
 	choices = [(g.id, g.title) for g in gifs]
 	form.gif_picks.choices = choices
 
-	if form.validate_on_submit():
+	if request.method == "POST":
 		giflist = form.gif_picks.data
 		name = form.name.data
 		listed = [get_gif_by_id(int(individual)) for individual in giflist] # create a list of Gif objects
@@ -333,8 +333,9 @@ def create_collection():
 @app.route('/collections',methods=["GET","POST"])
 @login_required
 def collections():
-	currentcollection = PersonalGifCollection.query.filter_by(id = current_user.id)
+	currentcollection = PersonalGifCollection.query.filter_by(userid = current_user.id).all()
 	return render_template('collections.html', collections = currentcollection)
+
 	# TODO 364: This view function should render the collections.html template so that only the current user's personal gif collection links will render in that template. Make sure to examine the template so that you send it the correct data!
 
 # Provided
